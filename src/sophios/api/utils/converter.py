@@ -327,16 +327,30 @@ def update_payload_missing_inputs_outputs(wfb_data: Json) -> Json:
     nodes = wfb_data_copy["state"]["nodes"]
     plugins = wfb_data_copy["plugins"]
 
-
-    if plugins != []:  # use the look up logic similar to WFB
+    if plugins != []:
         plugin_config_map: dict[str, dict] = {}
+        plugin_output_map: dict[str, list] = {}
         for plugin in plugins:
             pid: str = plugin.get("pid", "")
             if pid == "":
                 continue
             plugin_config_map[pid] = get_node_config(plugin)
+            plugin_output_map[pid] = plugin.get("outputs", [])
+
+        # add missing outputs
+        for node in nodes:
+            base_name = node["name"].replace(" ", "").lower() + "_" + str(node["id"])
+            if "outputs" not in node["settings"]:
+                node["settings"]["outputs"] = {}
+            node_outputs = node["settings"]["outputs"]
+            plugin_outputs: list = plugin_output_map.get(node["pluginId"], [])
+            for output in plugin_outputs:
+                if output["type"] == "path" and output["name"] not in node_outputs:
+                    node_outputs[output["name"]] = base_name + "-" + output["name"]
+
         # hashmap of node id to nodes for fast node lookup
         nodes_dict = {node['id']: node for node in nodes}
+        # use the look up logic similar to WFB to connect inputs and outputs
         for link in links:
             src_node = nodes_dict[link['sourceId']]
             tgt_node = nodes_dict[link['targetId']]
@@ -349,26 +363,7 @@ def update_payload_missing_inputs_outputs(wfb_data: Json) -> Json:
                 outlet_index = link['outletIndex']
                 src_node_out_arg = src_node_ui_config['outputs'][outlet_index]["name"]
                 tgt_node_in_arg = tgt_node_ui_config['inputs'][inlet_index]["name"]
-
                 tgt_node["settings"]["inputs"][tgt_node_in_arg] = src_node["settings"]["outputs"][src_node_out_arg]
-
-    # add missing outputs
-    plugin_output_map: dict[str, dict] = {}
-    for plugin in plugins:
-        pid: str = plugin.get("pid", "")
-        if pid == "":
-            continue
-        plugin_output_map[pid] = plugin.get("outputs", [])
-    for node in nodes:
-        base_name = node["name"].replace(" ", "").lower() + "_" + str(node["id"])
-        if "outputs" not in node["settings"]:
-            node["settings"]["outputs"] = {}
-        node_outputs = node["settings"]["outputs"]
-        plugin_outputs = plugin_output_map.get(node["pluginId"], [])
-        for output in plugin_outputs:
-            if output["name"] not in node_outputs:
-                node_outputs[output["name"]] = base_name + "_" + output["name"]
-
 
     if validate_schema_and_object(SCHEMA, wfb_data_copy):
         print('Updated object is valid against input object schema')
