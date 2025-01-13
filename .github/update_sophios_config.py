@@ -22,10 +22,22 @@ wic_locations = [
                 "image-workflows/workflows",
                 "mm-workflows/examples"
                 ]
+
+gpu_cwl_locations = [
+                    "mm-workflows/gpu"
+                    ]
+
+
 updated_cwl_locations = []
 for loc in cwl_locations:
     updated_cwl_locations.append(str(workdir_path / loc))
 config['search_paths_cwl']['global'] = updated_cwl_locations
+
+updated_gpu_cwl_locations = []
+for loc in gpu_cwl_locations:
+    updated_gpu_cwl_locations.append(str(workdir_path / loc))
+config['search_paths_cwl']['gpu'] = updated_gpu_cwl_locations
+
 
 updated_wic_loactions = []
 for loc in wic_locations:
