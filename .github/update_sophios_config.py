@@ -25,12 +25,12 @@ wic_locations = [
 updated_cwl_locations = []
 for loc in cwl_locations:
     updated_cwl_locations.append(str(workdir_path / loc))
-config['search_paths_cwl'] = updated_cwl_locations
+config['search_paths_cwl']['global'] = updated_cwl_locations
 
 updated_wic_loactions = []
 for loc in wic_locations:
     updated_wic_loactions.append(str(workdir_path / loc))
-config['search_paths_wic'] = updated_wic_loactions
+config['search_paths_wic']['global'] = updated_wic_loactions
 
 config_path = Path.home() / 'wic'
 config_path.mkdir(parents=True, exist_ok=True)
