@@ -25,7 +25,7 @@ class build_py(_build_py):
             global_config_file = config_path / 'global_config.json'
 
             # setup.py always gets executed in the project_root
-            config_file = Path(__file__).parent / 'src' / 'sophios' / 'config.json'
+            config_file = Path(__file__).parent / 'src' / 'sophios' / 'config_basic.json'
             config = {}
             # config_file can contain absolute or relative paths
             with open(config_file, 'r', encoding='utf-8') as f:
@@ -38,11 +38,10 @@ class build_py(_build_py):
             config_path.mkdir(parents=True, exist_ok=True)
             # write out the config file with paths
             with open(global_config_file, 'w', encoding='utf-8') as f:
-                json.dump(config, f)
+                json.dump(config, f, indent=4)
 
         # Continue with the standard build process
         super().run()
-
 
 setup(
     name='sophios',
