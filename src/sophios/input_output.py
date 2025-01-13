@@ -152,7 +152,6 @@ def get_config(config_file: Path, default_config_file: Path) -> Json:
         Json: The config json object with absolute filepaths
     """
     global_config: Json = {}
-    proj_root_dir = 'sophios'
     if not config_file.exists():
         global_config = get_basic_config()
         # write the basic config object to the 'global_config.json' file in user's ~/wic directory
